@@ -576,11 +576,15 @@ function gptzero_handle_event($eventdata) {
 function plagiarism_gptzero_is_plugin_configured($modulename)
 {
     $apikey = get_config('plagiarism_gptzero', 'gptzero_apikey');
-
     if (empty($apikey)) {
         return false;
     }
 
+    $moduleconfigname = 'gptzero_' . $modulename;
+    $moduleenabled = get_config('plagiarism_gptzero', $moduleconfigname);
+    if (!$moduleenabled) {
+        return false;
+    }
     return true;
 }
 

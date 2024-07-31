@@ -46,25 +46,9 @@ if ($mform->is_cancelled()) {
 echo $OUTPUT->header();
 
 if (($data = $mform->get_data()) && confirm_sesskey()) {
-    if (isset($data->gptzero_enabled)) {
-        set_config('enabled', $data->gptzero_enabled, 'plagiarism_gptzero');
-    }    
-    if (!isset($data->gptzero_enable_mod_assign)) {
-        $data->gptzero_enable_mod_assign = 0;
-    }
-    if (!isset($data->gptzero_enable_mod_assignment)) {
-        $data->gptzero_enable_mod_assignment = 0;
-    }
-    if (!isset($data->gptzero_enable_mod_forum)) {
-        $data->gptzero_enable_mod_forum = 0;
-    }
-    if (!isset($data->gptzero_enable_mod_workshop)) {
-        $data->gptzero_enable_mod_workshop = 0;
-    }
     foreach ($data as $field => $value) {
         if (strpos($field, 'gptzero') === 0) {
-            $plugintype = $field === 'gptzero_apikey' ? 'plagiarism_gptzero' : 'plagiarism';
-            set_config($field, $value, $plugintype);
+            set_config($field, $value, 'plagiarism_gptzero');
         }        
     }
     cache_helper::invalidate_by_definition('core', 'config', array(), 'plagiarism_gptzero');

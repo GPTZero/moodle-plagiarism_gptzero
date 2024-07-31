@@ -42,9 +42,13 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('gptzero_student_disclosure', 'studentdisclosure', 'plagiarism_gptzero');
         $mform->setDefault('gptzero_student_disclosure', get_string('studentdisclosuredefault', 'plagiarism_gptzero'));
 
-        $mods = core_component::get_plugin_list('mod');
-        if (array_key_exists('assign', $mods) && plugin_supports('mod', 'assign', FEATURE_PLAGIARISM)) {
-            $mform->addElement('checkbox', 'gptzero_enable_mod_assign', get_string('gptzero_enableplugin', 'plagiarism_gptzero', 'assign'));
+        $supportedmodules = array('assign', 'forum', 'quiz');
+        foreach ($supportedmodules as $module) {
+            $mform->addElement(
+                'advcheckbox',
+                'gptzero_mod_' . $module,
+                get_string('gptzero_enableplugin', 'plagiarism_gptzero', ucfirst($module == 'assign' ? 'Assignment' : $module))
+            );
         }
 
         $mform->addElement('passwordunmask', 'gptzero_apikey', get_string('apikey', 'plagiarism_gptzero'));
