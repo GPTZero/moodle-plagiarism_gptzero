@@ -94,6 +94,18 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         
         $cmid = $linkarray['cmid'];
         $userid = $linkarray['userid'];
+
+        // Fetch plagiarism plugin settings for the course module.
+        $plagiarismsettings = $this->get_settings();
+        if (!$plagiarismsettings) {
+            return false; // Exit if no settings found.
+        }
+        
+        // Check if plagiarism checking is enabled for this course module.
+        if (!$this->is_gptzero_used($cmid)) {
+            return false;
+        }
+        
         if (!empty($linkarray['file'])) {
             $file = new stdClass();
             $file->filename = $linkarray['file']->get_filename();
@@ -107,10 +119,16 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
             $file->identifier = $contenthash;
             $file->timestamp = time();
         }
-        $results = $this->get_file_results($cmid, $userid, $file);
+
+        // Send notification if user does not have gptzero account
         $this->handle_grading_page_view();
+
+        $results = $this->get_file_results($cmid, $userid, $file);
+        
         $output = '';
-        if (!$results) {
+
+        // Check if file has associated AI result
+        if (empty($results['predicted_class'])) {
             return $output;
         }
 
@@ -633,10 +651,15 @@ function plagiarism_gptzero_coursemodule_edit_post_actions($data, $course)
     }
 
     $gptzero = new plagiarism_plugin_gptzero();
+
     $plagiarismsettings = $gptzero->get_settings();
     if (!$plagiarismsettings) {
-        return false; // Exit if no settings found.
+        return; // Exit if no settings found.
     }
+
+    // if (!$gptzero->is_gptzero_used($data->coursemodule)) {
+    //     return;
+    // }
 
     $useremail = $DB->get_field('user', 'email', array('id' => $USER->id));
     $username = $DB->get_field('user', 'username', array('id' => $USER->id));
@@ -644,22 +667,24 @@ function plagiarism_gptzero_coursemodule_edit_post_actions($data, $course)
     $savedrecord = $DB->get_record('plagiarism_gptzero_config', array('cm' => $data->coursemodule));
 
     if (!$savedrecord) {
-        // gptzero deep-linking
-        $api = new \plagiarism_gptzero\api();
-        $response = $api->create_assignment($username, $useremail, $USER->id);
-        $response = json_decode($response, true);
+        if ($data->use_gptzero) {
+            // gptzero deep-linking
+            $api = new \plagiarism_gptzero\api();
+            $response = $api->create_assignment($username, $useremail, $USER->id);
+            $response = json_decode($response, true);
 
-        if (!empty($response['data']['gptzero_assignment_id'])) {
-            $mod_config = new stdClass();
-            $mod_config->cm = $data->coursemodule;
-            $mod_config->name = 'use_gptzero';
-            $mod_config->value = $data->use_gptzero;
-            $mod_config->creatoremail = $useremail;
-            $mod_config->gptzero_assignment_id = $response['data']['gptzero_assignment_id'];
-            
-            $DB->insert_record('plagiarism_gptzero_config', $mod_config);
-        } else {
-            debugging("GPTZero Assignment Creation Error", DEBUG_DEVELOPER);
+            if (!empty($response['data']['gptzero_assignment_id'])) {
+                $mod_config = new stdClass();
+                $mod_config->cm = $data->coursemodule;
+                $mod_config->name = 'use_gptzero';
+                $mod_config->value = $data->use_gptzero;
+                $mod_config->creatoremail = $useremail;
+                $mod_config->gptzero_assignment_id = $response['data']['gptzero_assignment_id'];
+                
+                $DB->insert_record('plagiarism_gptzero_config', $mod_config);
+            } else {
+                debugging("GPTZero Assignment Creation Error", DEBUG_DEVELOPER);
+            }
         }
     } else {
         //update existing record
