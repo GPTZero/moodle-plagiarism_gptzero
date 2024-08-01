@@ -84,16 +84,6 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
     }
 
     /**
-     * Check whether GPTZero is enabled for course module Assignment
-     *
-     * @param $plagiarismsettings
-     * @return boolean whether GPTZero is enabled for the course module type
-     */
-    public function is_gptzero_settings_enabled($plagiarismsettings) {
-        return isset($plagiarismsettings['gptzero_enable_mod_assign']) && $plagiarismsettings['gptzero_enable_mod_assign'];
-    }
-
-    /**
      * hook to allow plagiarism specific information to be displayed beside a submission
      * @param array  $linkarraycontains all relevant information for the plugin to generate a link
      * @return string
@@ -501,7 +491,6 @@ function gptzero_handle_event($eventdata) {
     // Normal scenario - this is an upload event with one or more attached files.
     if (!empty($eventdata['other']['pathnamehashes'])) {
         $eventDataOtherString = print_r($eventdata['other'], true);
-        debugging($eventDataOtherString, DEBUG_DEVELOPER);
         foreach ($eventdata['other']['pathnamehashes'] as $hash) {
             $fs = get_file_storage();
             $efile = $fs->get_file_by_hash($hash);
