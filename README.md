@@ -1,6 +1,6 @@
 # GPTZero Plugin for Moodle #
 
-GPTZero AI Detection Plugin is an easy to use and intuitive integration that seamlessly scans student submissions directly within Moodle to detect the use of AI-generated content. As educators grade assignments, they can effortlessly review each submission without plugin. The GPTZero plugin provides detailed reports indicating the likelihood of AI involvement in text generation, plagiarism likelihood, writing analysis, and writing feedback.
+GPTZero AI Detection Plugin is an easy to use and intuitive integration that seamlessly scans student submissions directly within Moodle to detect the use of AI-generated content. As educators grade assignments, they can effortlessly review each submission with our plugin. The GPTZero plugin provides detailed reports indicating the likelihood of AI involvement in text generation, plagiarism likelihood, writing analysis, and writing feedback.
 
 ## Supported Modules ##
 - Assignment
