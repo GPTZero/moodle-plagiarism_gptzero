@@ -42,7 +42,7 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('gptzero_student_disclosure', 'studentdisclosure', 'plagiarism_gptzero');
         $mform->setDefault('gptzero_student_disclosure', get_string('studentdisclosuredefault', 'plagiarism_gptzero'));
 
-        $supportedmodules = array('assign', 'forum', 'quiz');
+        $supportedmodules = array('assign');
         foreach ($supportedmodules as $module) {
             $mform->addElement(
                 'advcheckbox',
