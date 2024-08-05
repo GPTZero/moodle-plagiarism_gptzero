@@ -46,8 +46,12 @@ if ($mform->is_cancelled()) {
 echo $OUTPUT->header();
 
 if (($data = $mform->get_data()) && confirm_sesskey()) {
+    if (isset($data->gptzero_enabled)) {
+        set_config('enabled', $data->gptzero_enabled, 'plagiarism_gptzero');
+    } 
+
     foreach ($data as $field => $value) {
-        if (strpos($field, 'gptzero') === 0) {
+        if (strpos($field, 'gptzero') === 0  && $field !== 'gptzero_enabled') {
             set_config($field, $value, 'plagiarism_gptzero');
         }        
     }
