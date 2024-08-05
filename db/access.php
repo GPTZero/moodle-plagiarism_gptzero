@@ -18,7 +18,7 @@
  * Capabilities for the GPTZero plagiarism plugin.
  *
  * @package    plagiarism_gptzero
- * @copyright  2024 Tyler Vu <tyler@gptzero.me>
+ * @copyright  2024 GPTZero <team@gptzero.me>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

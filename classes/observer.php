@@ -17,7 +17,7 @@
 /**
  * Event observers used in GPTZero Plagiarism plugin.
  *
- * @copyright  2024 Tyler Vu <tyler@gptzero.me>
+ * @copyright  2024 GPTZero <team@gptzero.me>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
