@@ -657,10 +657,6 @@ function plagiarism_gptzero_coursemodule_edit_post_actions($data, $course)
         return; // Exit if no settings found.
     }
 
-    // if (!$gptzero->is_gptzero_used($data->coursemodule)) {
-    //     return;
-    // }
-
     $useremail = $DB->get_field('user', 'email', array('id' => $USER->id));
     $username = $DB->get_field('user', 'username', array('id' => $USER->id));
 
