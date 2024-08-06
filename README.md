@@ -4,6 +4,7 @@ GPTZero AI Detection Plugin is an easy to use and intuitive integration that sea
 
 ## Supported Modules ##
 - Assignment
+- Forum
 
 ## Installing via uploaded ZIP file ##
 
