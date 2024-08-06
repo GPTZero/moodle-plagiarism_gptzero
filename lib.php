@@ -253,10 +253,10 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
             'analyzed' => 0, 'score' => '', 'reporturl' => '', 'error' => '',
         ];
 
-        if ($storedfile->predictedclass) {
+        if ($storedfile->predicted_class) {
             // File has been analyzed. Return stored results.
             $results['analyzed'] = 1;
-            $results['predicted_class'] = $storedfile->predictedclass;
+            $results['predicted_class'] = $storedfile->predicted_class;
             $results['class_probability'] = $storedfile->class_probability;
         } else {
             // TODO: Add retry logic.
@@ -333,7 +333,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         if (isset($response['error'])) {
             debugging("API submission failed: " . $response['error'], DEBUG_DEVELOPER);
         } else {
-            $plagiarismfile->predictedclass = $response['results']['predicted_class'];
+            $plagiarismfile->predicted_class = $response['results']['predicted_class'];
             $plagiarismfile->class_probability = $response['results']['class_probability'];
             $plagiarismfile->confidence_category = $response['results']['confidence_category'];
             $plagiarismfile->scanid = $response['results']['scanId'];
@@ -411,7 +411,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
             if (isset($response['error'])) {
                 debugging("insert into gptzero_files failed");
             } else {
-                $plagiarismfile->predictedclass = $response['results']['predicted_class'];
+                $plagiarismfile->predicted_class = $response['results']['predicted_class'];
                 $plagiarismfile->class_probability = $response['results']['class_probability'];
                 $plagiarismfile->confidence_category = $response['results']['confidence_category'];
                 $plagiarismfile->scanid = $response['results']['scanId'];
