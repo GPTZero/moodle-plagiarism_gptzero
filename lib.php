@@ -278,9 +278,12 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
     
         // Get additional details about the assignment and user
         $moduleinfo = $DB->get_record_sql(
-            "SELECT cm.instance, a.name FROM {course_modules} AS cm 
-            JOIN {assign} AS a ON cm.instance = a.id 
-            WHERE cm.id = ? AND cm.module = (SELECT id FROM {modules} WHERE name = 'assign')",
+            "SELECT cm.instance, COALESCE(a.name, f.name) AS name, m.name AS module_type
+            FROM {course_modules} AS cm
+            JOIN {modules} AS m ON cm.module = m.id
+            LEFT JOIN {assign} AS a ON cm.instance = a.id AND m.name = 'assign'
+            LEFT JOIN {forum} AS f ON cm.instance = f.id AND m.name = 'forum'
+            WHERE cm.id = ?",
             array($cmid));
     
         $assignmentid = $moduleinfo->instance;
