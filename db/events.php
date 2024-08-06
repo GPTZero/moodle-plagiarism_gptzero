@@ -21,31 +21,32 @@
  * @copyright  2024 GPTZero <team@gptzero.me>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
-$observers = array (
+$observers = [
     // Event observers.
-    array(
+    [
         'eventname' => '\assignsubmission_file\event\assessable_uploaded',
-        'callback' => 'plagiarism_gptzero_observer::assignsubmission_file_uploaded'
-    ),
-    array(
+        'callback' => 'plagiarism_gptzero_observer::assignsubmission_file_uploaded',
+    ],
+    [
         'eventname' => '\mod_workshop\event\assessable_uploaded',
-        'callback' => 'plagiarism_gptzero_observer::workshop_file_uploaded'
-    ),
-    array(
+        'callback' => 'plagiarism_gptzero_observer::workshop_file_uploaded',
+    ],
+    [
         'eventname' => '\mod_forum\event\assessable_uploaded',
-        'callback' => 'plagiarism_gptzero_observer::forum_file_uploaded'
-    ),
-    array(
+        'callback' => 'plagiarism_gptzero_observer::forum_file_uploaded',
+    ],
+    [
         'eventname' => '\assignsubmission_onlinetext\event\assessable_uploaded',
-        'callback' => 'plagiarism_gptzero_observer::assignsubmission_onlinetext_uploaded'
-    ),
-    array(
+        'callback' => 'plagiarism_gptzero_observer::assignsubmission_onlinetext_uploaded',
+    ],
+    [
         'eventname' => '\mod_assign\event\assessable_submitted',
-        'callback' => 'plagiarism_gptzero_observer::assignsubmission_submitted'
-    ),
-    array(
+        'callback' => 'plagiarism_gptzero_observer::assignsubmission_submitted',
+    ],
+    [
         'eventname' => '\mod_assign\event\grading_table_viewed',
         'callback' => 'plagiarism_gptzero_observer::grading_page_accessed',
-    ),
-);
+    ],
+];

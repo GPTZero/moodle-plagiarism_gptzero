@@ -22,14 +22,21 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
-}
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 
+/**
+ * Form for setting up the GPTZero plagiarism plugin configurations.
+ * This form allows administrators to enable or disable the plugin, set API keys,
+ * configure disclosures for students, and specify which Moodle modules (like Assignments or Forums)
+ * should use GPTZero for plagiarism detection.
+ */
 class plagiarism_setup_form extends moodleform {
-    public function definition () {
+    /**
+     * Defines the form elements for the GPTZero plagiarism plugin setup.
+     */
+    public function definition() {
         $mform =& $this->_form;
 
         $mform->addElement('html', get_string('gptzeroexplain', 'plagiarism_gptzero'));
@@ -42,7 +49,7 @@ class plagiarism_setup_form extends moodleform {
         $mform->addHelpButton('gptzero_student_disclosure', 'studentdisclosure', 'plagiarism_gptzero');
         $mform->setDefault('gptzero_student_disclosure', get_string('studentdisclosuredefault', 'plagiarism_gptzero'));
 
-        $supportedmodules = array('assign', 'forum');
+        $supportedmodules = ['assign', 'forum'];
         foreach ($supportedmodules as $module) {
             $mform->addElement(
                 'advcheckbox',
@@ -55,7 +62,8 @@ class plagiarism_setup_form extends moodleform {
         $mform->setType('gptzero_apikey', PARAM_TEXT);
         $mform->addRule('gptzero_apikey', get_string('required'), 'required');
 
-        $mform->addElement('html', '<div class="form-group row fitem"><div class="col-md-12 col-form-label">'.get_string("apikeyhelp","plagiarism_gptzero"));
+        $mform->addElement('html', '<div class="form-group row fitem"><div class="col-md-12 col-form-label">'
+                            .get_string("apikeyhelp", "plagiarism_gptzero"));
 
         $this->add_action_buttons(true);
     }

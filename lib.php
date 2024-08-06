@@ -22,9 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
-}
+defined('MOODLE_INTERNAL') || die();
 
 // Get global class.
 require_once($CFG->dirroot.'/plagiarism/lib.php');
@@ -67,7 +65,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         global $DB;
         $useforcm = false;
         $cmenabled = false;
-        $plagiarismvalues = $DB->get_records_menu('plagiarism_gptzero_config', array('cm' => $cmid), '', 'name, value');
+        $plagiarismvalues = $DB->get_records_menu('plagiarism_gptzero_config', ['cm' => $cmid], '', 'name, value');
         if (empty($plagiarismvalues)) {
             return false;
         }
@@ -77,7 +75,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         }
 
         // Check if the module associated with this event still exists.
-        if ($DB->record_exists('course_modules', array('id' => $cmid))) {
+        if ($DB->record_exists('course_modules', ['id' => $cmid])) {
             $cmenabled = true;
         }
         return ($useforcm && $cmenabled);
@@ -91,7 +89,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
      */
     public function get_links($linkarray) {
         global $CFG, $SESSION;
-        
+
         $cmid = $linkarray['cmid'];
         $userid = $linkarray['userid'];
 
@@ -100,12 +98,12 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         if (!$plagiarismsettings) {
             return false; // Exit if no settings found.
         }
-        
+
         // Check if plagiarism checking is enabled for this course module.
         if (!$this->is_gptzero_used($cmid)) {
             return false;
         }
-        
+
         if (!empty($linkarray['file'])) {
             $file = new stdClass();
             $file->filename = $linkarray['file']->get_filename();
@@ -120,47 +118,48 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
             $file->timestamp = time();
         }
 
-        // Send notification if user does not have gptzero account
+        // Send notification if user does not have gptzero account.
         $this->handle_grading_page_view();
 
         $results = $this->get_file_results($cmid, $userid, $file);
-        
+
         $output = '';
 
-        // Check if file has associated AI result
+        // Check if file has associated AI result.
         if (empty($results['predicted_class'])) {
             return $output;
         }
 
-        $classFormat = [
+        $classformat = [
             'ai' => 'AI',
             'human' => 'Human',
-            'mixed' => 'Mixed'
-        ];
-    
-        $predicted_class = $results['predicted_class'];
-        $display_class = $classFormat[$predicted_class] ?? 'Unknown';
-        $class_probability = number_format($results['class_probability'] * 100, 0);
-        $scanUrl = $this->get_scan_url($cmid, $userid, $file->identifier);
-        
-        $backgroundColors = [
-            'ai' => '#FEBD69',
-            'human' => '#8AD4BA',
-            'mixed' => '#E9D2FF'
-        ];
-        $hoverColors = [
-            'ai' => '#E19F4A',
-            'human' => '#39B58A',
-            'mixed' => '#CDA3F5'
+            'mixed' => 'Mixed',
         ];
 
-        $bgColor = $backgroundColors[$predicted_class] ?? '#FEBD69';
-        $hoverColor = $hoverColors[$predicted_class] ?? '#E19F4A';
-        $logoUrl = $CFG->wwwroot . '/plagiarism/gptzero/pix/gptzero_logo.png';
-    
-        if ($results['predicted_class'] && $scanUrl) {
-            $output .= "<br><a href='{$scanUrl}' target='_blank' style='text-decoration: none; display: flex; align-items: center; gap: 10px; margin-top: 6px'>";
-            $output .= "<img src='{$logoUrl}' alt='GPTZero Logo' style='height: 20px;'>";
+        $predictedclass = $results['predicted_class'];
+        $displayclass = $classformat[$predictedclass] ?? 'Unknown';
+        $classprobability = number_format($results['class_probability'] * 100, 0);
+        $scanurl = $this->get_scan_url($cmid, $userid, $file->identifier);
+
+        $backgroundcolors = [
+            'ai' => '#FEBD69',
+            'human' => '#8AD4BA',
+            'mixed' => '#E9D2FF',
+        ];
+        $hovercolors = [
+            'ai' => '#E19F4A',
+            'human' => '#39B58A',
+            'mixed' => '#CDA3F5',
+        ];
+
+        $bgcolor = $backgroundcolors[$predictedclass] ?? '#FEBD69';
+        $hovercolor = $hovercolors[$predictedclass] ?? '#E19F4A';
+        $logourl = $CFG->wwwroot . '/plagiarism/gptzero/pix/gptzero_logo.png';
+
+        if ($results['predicted_class'] && $scanurl) {
+            $output .= "<br><a href='{$scanurl}' target='_blank' style='text-decoration: none;
+                        display: flex; align-items: center; gap: 10px; margin-top: 6px'>";
+            $output .= "<img src='{$logourl}' alt='GPTZero Logo' style='height: 20px;'>";
             $output .= "<div style='
                 display: flex;
                 width: 110px;
@@ -168,7 +167,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
                 padding: 1px;
                 justify-content: center;
                 align-items: center;
-                background: {$bgColor};
+                background: {$bgcolor};
                 border-radius: 5px;
                 gap: 10px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -179,25 +178,33 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
                 font-weight: 700;
                 text-align: center;
                 color: #000;
-                ' onmouseover='this.style.backgroundColor=\"{$hoverColor}\"; this.style.boxShadow=\"0 4px 8px rgba(0,0,0,0.2)\";'
-                onmouseout='this.style.backgroundColor=\"{$bgColor}\"; this.style.boxShadow=\"0 2px 4px rgba(0,0,0,0.1)\";'>";
-            $output .= "{$display_class} - {$class_probability}%";
+                ' onmouseover='this.style.backgroundColor=\"{$hovercolor}\"; this.style.boxShadow=\"0 4px 8px rgba(0,0,0,0.2)\";'
+                onmouseout='this.style.backgroundColor=\"{$bgcolor}\"; this.style.boxShadow=\"0 2px 4px rgba(0,0,0,0.1)\";'>";
+            $output .= "{$displayclass} - {$classprobability}%";
             $output .= "</div></a>";
-        } elseif ($results['predicted_class']) {
-            $output .= "<br>{$display_class}: {$class_probability}%";
+        } else if ($results['predicted_class']) {
+            $output .= "<br>{$displayclass}: {$classprobability}%";
         } else {
             $output .= "<br>Pending!";
         }
         return $output;
-    }    
+    }
 
+    /**
+     * Retrieves the URL associated with a scanned document for a given course module, user, and identifier.
+     *
+     * @param int $cmid The course module ID.
+     * @param int $userid The ID of the user.
+     * @param string $identifier The unique identifier of the document.
+     * @return string|null Returns the scan URL or null if not found.
+     */
     public function get_scan_url($cmid, $userid, $identifier) {
-        // Query to get the scan URL
+        // Query to get the scan URL.
         global $DB;
         $sql = "SELECT scanurl FROM {plagiarism_gptzero_files} WHERE cm = ? AND userid = ? AND identifier = ?";
         $record = $DB->get_record_sql($sql, [$cmid, $userid, $identifier]);
         return $record ? $record->scanurl : null;
-    }    
+    }
 
     /**
      * hook to allow plagiarism specific information to be returned unformatted
@@ -225,8 +232,9 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         // Check permissions for viewing plagiarism info.
         $modulecontext = context_module::instance($cmid);
         $viewreport = has_capability('plagiarism/gptzero:viewreport', $modulecontext);
-        $plagiarismvalues = $DB->get_records_menu('plagiarism_gptzero_config', array('cm' => $cmid), '', 'name, value');
-        if (isset($plagiarismvalues['gptzero_show_student_plagiarism_info']) && $plagiarismvalues['gptzero_show_student_plagiarism_info']) {
+        $plagiarismvalues = $DB->get_records_menu('plagiarism_gptzero_config', ['cm' => $cmid], '', 'name, value');
+        if (isset($plagiarismvalues['gptzero_show_student_plagiarism_info'])
+            && $plagiarismvalues['gptzero_show_student_plagiarism_info']) {
             $viewreport = true; // Override if specific config allows students to view their own plagiarism info.
         }
 
@@ -234,24 +242,24 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
 
         // Fetch stored results for this file.
         $storedfile = $DB->get_record_sql("SELECT * FROM {plagiarism_gptzero_files} WHERE cm = ? AND userid = ? AND identifier = ?",
-            array($cmid, $userid, $filehash));
+            [$cmid, $userid, $filehash]);
 
         if (!$storedfile) {
             return false; // No records found for the file.
         }
 
         // Prepare the results structure.
-        $results = array(
-            'analyzed' => 0, 'score' => '', 'reporturl' => '', 'error' => ''
-        );
+        $results = [
+            'analyzed' => 0, 'score' => '', 'reporturl' => '', 'error' => '',
+        ];
 
-        if ($storedfile->predicted_class) {
+        if ($storedfile->predictedclass) {
             // File has been analyzed. Return stored results.
             $results['analyzed'] = 1;
-            $results['predicted_class'] = $storedfile->predicted_class;
+            $results['predicted_class'] = $storedfile->predictedclass;
             $results['class_probability'] = $storedfile->class_probability;
         } else {
-            // TODO: Add retry logic
+            // TODO: Add retry logic.
             debugging("Not yet analyzed", DEBUG_DEVELOPER);
         }
 
@@ -272,73 +280,73 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
      */
     public function handle_onlinetext($cmid, $userid, $content, $overflowenabled = false) {
         global $DB;
-    
-        $useremail = $DB->get_field('user', 'email', array('id' => $userid));
-        $username = $DB->get_field('user', 'username', array('id' => $userid));
-    
-        // Get additional details about the assignment and user
+
+        $useremail = $DB->get_field('user', 'email', ['id' => $userid]);
+        $username = $DB->get_field('user', 'username', ['id' => $userid]);
+
+        // Get additional details about the assignment and user.
         $moduleinfo = $DB->get_record_sql(
-            "SELECT cm.instance, COALESCE(a.name, f.name) AS name, m.name AS module_type
-            FROM {course_modules} AS cm
-            JOIN {modules} AS m ON cm.module = m.id
-            LEFT JOIN {assign} AS a ON cm.instance = a.id AND m.name = 'assign'
-            LEFT JOIN {forum} AS f ON cm.instance = f.id AND m.name = 'forum'
+            "SELECT cm.instance, COALESCE(a.name, f.name) name, m.name module_type
+            FROM {course_modules} cm
+            JOIN {modules} m ON cm.module = m.id
+            LEFT JOIN {assign} a ON cm.instance = a.id AND m.name = 'assign'
+            LEFT JOIN {forum} f ON cm.instance = f.id AND m.name = 'forum'
             WHERE cm.id = ?",
-            array($cmid));
-    
+            [$cmid]);
+
         $assignmentid = $moduleinfo->instance;
         $assignmentname = $moduleinfo->name;
-    
-        // Retrieves GPTZero assignment id associated with Moodle assignment id
-        $record = $DB->get_record('plagiarism_gptzero_config', array('cm' => $cmid), 'gptzero_assignment_id');
-        $gptzero_assignment_id = $record ? $record->gptzero_assignment_id : null;
 
-        $formattedContent = $overflowenabled ? '<div class="no-overflow">'.$content.'</div>' : $content;
-        // Hash the content to generate a unique identifier for tracking
+        // Retrieves GPTZero assignment id associated with Moodle assignment id.
+        $record = $DB->get_record('plagiarism_gptzero_config', ['cm' => $cmid], 'gptzero_assignment_id');
+        $gptzeroassignmentid = $record ? $record->gptzero_assignment_id : null;
+
+        $formattedcontent = $overflowenabled ? '<div class="no-overflow">'.$content.'</div>' : $content;
+        // Hash the content to generate a unique identifier for tracking.
         $filehash = md5(trim($content));
-    
-        // Prepare params for API submission
+
+        // Prepare params for API submission.
         $params = [
             'assignmentName' => $assignmentname,
-            'assignmentId' => $gptzero_assignment_id,
+            'assignmentId' => $gptzeroassignmentid,
             'userId' => $userid,
             'userName' => $username,
             'userEmail' => $useremail,
         ];
 
-        $rawText = strip_tags($content);
-    
+        $rawtext = strip_tags($content);
+
         $api = new \plagiarism_gptzero\api();
-        $response = $api->submit_text($rawText, $params);
-    
+        $response = $api->submit_text($rawtext, $params);
+
         $response = json_decode($response, true);
-    
+
         $plagiarismfile = new stdClass();
         $plagiarismfile->cm = $cmid;
         $plagiarismfile->userid = $userid;
         $plagiarismfile->useremail = $useremail;
         $plagiarismfile->identifier = $filehash;
-        $plagiarismfile->content = $formattedContent;
+        $plagiarismfile->content = $formattedcontent;
         $plagiarismfile->timesubmitted = time();
-    
-        // Handle response
+
+        // Handle response.
         if (isset($response['error'])) {
             debugging("API submission failed: " . $response['error'], DEBUG_DEVELOPER);
         } else {
-            $plagiarismfile->predicted_class = $response['results']['predicted_class'];
+            $plagiarismfile->predictedclass = $response['results']['predicted_class'];
             $plagiarismfile->class_probability = $response['results']['class_probability'];
             $plagiarismfile->confidence_category = $response['results']['confidence_category'];
             $plagiarismfile->scanid = $response['results']['scanId'];
             $plagiarismfile->scanurl = $response['results']['scanUrl'];
         }
-    
+
         if (!$pid = $DB->insert_record('plagiarism_gptzero_files', $plagiarismfile)) {
             debugging("insert into gptzero_files failed", DEBUG_DEVELOPER);
         }
-    
+
         return isset($pid);
-    }    
-    
+    }
+
     /**
      * Updates a file record to be processed by GPTZero.
      *
@@ -350,20 +358,20 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
     public function update_plagiarism_file($cmid, $userid, $file) {
         global $DB;
 
-        $useremail = $DB->get_field('user', 'email', array('id' => $userid));
-        $username = $DB->get_field('user', 'username', array('id' => $userid));
+        $useremail = $DB->get_field('user', 'email', ['id' => $userid]);
+        $username = $DB->get_field('user', 'username', ['id' => $userid]);
 
-        // Query to get the assignment ID and name
+        // Query to get the assignment ID and name.
         $moduleinfo = $DB->get_record_sql(
-            "SELECT cm.instance, a.name FROM {course_modules} AS cm 
-            JOIN {assign} AS a ON cm.instance = a.id 
+            "SELECT cm.instance, a.name FROM {course_modules} cm
+            JOIN {assign} a ON cm.instance = a.id
             WHERE cm.id = ? AND cm.module = (SELECT id FROM {modules} WHERE name = 'assign')",
-            array($cmid));
+            [$cmid]);
 
         $assignmentid = $moduleinfo->instance;
-        // retrieves gptzero assignment id associated with moodle assignment id
-        $record = $DB->get_record('plagiarism_gptzero_config', array('cm' => $cmid), 'gptzero_assignment_id');
-        $gptzero_assignment_id = $record->gptzero_assignment_id;
+        // Retrieves GPTZero assignment id associated with Moodle assignment id.
+        $record = $DB->get_record('plagiarism_gptzero_config', ['cm' => $cmid], 'gptzero_assignment_id');
+        $gptzeroassignmentid = $record->gptzero_assignment_id;
 
         $assignmentname = $moduleinfo->name;
 
@@ -373,7 +381,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
             "SELECT * FROM {plagiarism_gptzero_files}
                                  WHERE cm = ? AND userid = ? AND " .
             "identifier = ?",
-            array($cmid, $userid, $filehash));
+            [$cmid, $userid, $filehash]);
         if (!empty($plagiarismfile)) {
             // File is already there, return true.
             return true;
@@ -389,22 +397,21 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
 
             $params = [
                 'assignmentName' => $assignmentname,
-                'assignmentId' => $gptzero_assignment_id,
+                'assignmentId' => $gptzeroassignmentid,
                 'userId' => $userid,
                 'userName' => $username,
                 'userEmail' => $useremail,
             ];
-            
-            // Call the API to submit the file
+
+            // Call the API to submit the file.
             $api = new \plagiarism_gptzero\api();
             $response = $api->submit_file($file, $params);
             $response = json_decode($response, true);
 
-            // $plagiarismfile->status = $response['success'] ? 'pending' : 'failed';
             if (isset($response['error'])) {
                 debugging("insert into gptzero_files failed");
             } else {
-                $plagiarismfile->predicted_class = $response['results']['predicted_class'];
+                $plagiarismfile->predictedclass = $response['results']['predicted_class'];
                 $plagiarismfile->class_probability = $response['results']['class_probability'];
                 $plagiarismfile->confidence_category = $response['results']['confidence_category'];
                 $plagiarismfile->scanid = $response['results']['scanId'];
@@ -430,7 +437,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         if (!$plagiarismsettings) {
             return; // Exit if no settings found.
         }
-        $plagiarismvalues = $DB->get_records_menu('plagiarism_gptzero_config', array('cm' => $cmid), '', 'name, value');
+        $plagiarismvalues = $DB->get_records_menu('plagiarism_gptzero_config', ['cm' => $cmid], '', 'name, value');
         if (empty($plagiarismvalues['use_gptzero'])) {
             // GPTZero not in use for this cm - return.
             return;
@@ -451,14 +458,18 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
      *
      */
     public function config_options() {
-        return array('use_gptzero', 'gptzero_show_student_plagiarism_info',
-            'gptzero_draft_submit');
+        return ['use_gptzero', 'gptzero_show_student_plagiarism_info',
+            'gptzero_draft_submit'];
     }
-    public function handle_grading_page_view() {
-        static $notification_displayed = false;
 
-        if ($notification_displayed) {
-            // Skip the function if the notification has already been handled during this request
+    /**
+     * Handles the logic to display notifications related to GPTZero when the grading page is accessed.
+     */
+    public function handle_grading_page_view() {
+        static $notificationdisplayed = false;
+
+        if ($notificationdisplayed) {
+            // Skip the function if the notification has already been handled during this request.
             return;
         }
 
@@ -484,10 +495,12 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         $response = json_decode($response, true);
 
         if (!empty($response['success']) && !$response['hasAccount']) {
-            $message = "It looks like you have not yet created a GPTZero account. An account is required to see in-depth results in the GPTZero dashboard. An invitation was sent from api@gptzero.me to {$useremail} during assignment creation.";
+            $message = "It looks like you have not yet created a GPTZero account.
+                        An account is required to see in-depth results in the GPTZero dashboard.
+                        An invitation was sent from api@gptzero.me to {$useremail} during assignment creation.";
             \core\notification::add($message, \core\notification::INFO);
             debugging('User does not have a GPTZero account. Check your email.', DEBUG_DEVELOPER);
-            $notification_displayed = true;
+            $notificationdisplayed = true;
         }
     }
 }
@@ -511,7 +524,6 @@ function gptzero_handle_event($eventdata) {
 
     // Normal scenario - this is an upload event with one or more attached files.
     if (!empty($eventdata['other']['pathnamehashes'])) {
-        $eventDataOtherString = print_r($eventdata['other'], true);
         foreach ($eventdata['other']['pathnamehashes'] as $hash) {
             $fs = get_file_storage();
             $efile = $fs->get_file_by_hash($hash);
@@ -536,14 +548,14 @@ function gptzero_handle_event($eventdata) {
                         $groupid = reset($mygroups)[0];
                         // Only users with single groups are supported - otherwise just use the normal userid on this record.
                         // Get all users from this group.
-                        $userids = array();
+                        $userids = [];
                         $users = groups_get_members($groupid, 'u.id');
                         foreach ($users as $u) {
                             $userids[] = $u->id;
                         }
                         // Find the earliest plagiarism record for this cm with any of these users.
                         $sql = 'cm = ? AND userid IN (' . implode(',', $userids) . ')';
-                        $previousfiles = $DB->get_records_select('plagiarism_gptzero_files', $sql, array($cmid), 'id');
+                        $previousfiles = $DB->get_records_select('plagiarism_gptzero_files', $sql, [$cmid], 'id');
                         $sanitycheckusers = 10; // Search through this number of users to find a valid previous submission.
                         $i = 0;
                         foreach ($previousfiles as $pf) {
@@ -565,9 +577,9 @@ function gptzero_handle_event($eventdata) {
                         }
                     }
                 }
-            }   
-            $update_stat = $gptzero->update_plagiarism_file($cmid, $eventdata['userid'], $efile);
-            if (!$update_stat) {
+            }
+            $updatestat = $gptzero->update_plagiarism_file($cmid, $eventdata['userid'], $efile);
+            if (!$updatestat) {
                 debugging('issue uploading', DEBUG_DEVELOPER);
             }
         }
@@ -583,8 +595,13 @@ function gptzero_handle_event($eventdata) {
     }
 }
 
-function plagiarism_gptzero_is_plugin_configured($modulename)
-{
+/**
+ * Checks if the GPTZero plugin is configured for a specific module.
+ *
+ * @param string $modulename The name of the module to check.
+ * @return bool Returns true if the plugin is configured, false otherwise.
+ */
+function plagiarism_gptzero_is_plugin_configured($modulename) {
     $apikey = get_config('plagiarism_gptzero', 'gptzero_apikey');
     if (empty($apikey)) {
         return false;
@@ -598,8 +615,13 @@ function plagiarism_gptzero_is_plugin_configured($modulename)
     return true;
 }
 
-function plagiarism_gptzero_coursemodule_standard_elements($formwrapper, $mform)
-{
+/**
+ * Adds standard form elements for GPTZero settings to the course module settings page.
+ *
+ * @param MoodleQuickForm $mform The Moodle form (usually a mod_form) to add elements to.
+ * @param stdClass $formwrapper A wrapper object that includes information about the course module.
+ */
+function plagiarism_gptzero_coursemodule_standard_elements($formwrapper, $mform) {
     global $DB;
     $context = context_course::instance($formwrapper->get_course()->id);
     $modulename = $formwrapper->get_current()->modulename;
@@ -632,7 +654,7 @@ function plagiarism_gptzero_coursemodule_standard_elements($formwrapper, $mform)
         );
 
         $cmid = optional_param('update', null, PARAM_INT);
-        $savedvalues = $DB->get_records_menu('plagiarism_gptzero_config', array('cm' => $cmid), '', 'name,value');
+        $savedvalues = $DB->get_records_menu('plagiarism_gptzero_config', ['cm' => $cmid], '', 'name,value');
         if (count($savedvalues) > 0) {
             $mform->setDefault(
                 'use_gptzero',
@@ -644,8 +666,15 @@ function plagiarism_gptzero_coursemodule_standard_elements($formwrapper, $mform)
     }
 }
 
-function plagiarism_gptzero_coursemodule_edit_post_actions($data, $course)
-{
+/**
+ * Performs post-processing actions after a course module edit form is submitted.
+ * This includes setting or updating GPTZero configuration settings based on the form input.
+ *
+ * @param stdClass $data The data submitted from the form.
+ * @param stdClass $course The course object containing details about the course.
+ * @return mixed The function can return processed data or a status indication as needed.
+ */
+function plagiarism_gptzero_coursemodule_edit_post_actions($data, $course) {
     global $DB, $USER;
 
     // Return no form if the plugin isn't configured or not enabled.
@@ -660,33 +689,33 @@ function plagiarism_gptzero_coursemodule_edit_post_actions($data, $course)
         return; // Exit if no settings found.
     }
 
-    $useremail = $DB->get_field('user', 'email', array('id' => $USER->id));
-    $username = $DB->get_field('user', 'username', array('id' => $USER->id));
+    $useremail = $DB->get_field('user', 'email', ['id' => $USER->id]);
+    $username = $DB->get_field('user', 'username', ['id' => $USER->id]);
 
-    $savedrecord = $DB->get_record('plagiarism_gptzero_config', array('cm' => $data->coursemodule));
+    $savedrecord = $DB->get_record('plagiarism_gptzero_config', ['cm' => $data->coursemodule]);
 
     if (!$savedrecord) {
         if ($data->use_gptzero) {
-            // gptzero deep-linking
+            // GPTZero deep-linking.
             $api = new \plagiarism_gptzero\api();
             $response = $api->create_assignment($username, $useremail, $USER->id);
             $response = json_decode($response, true);
 
             if (!empty($response['data']['gptzero_assignment_id'])) {
-                $mod_config = new stdClass();
-                $mod_config->cm = $data->coursemodule;
-                $mod_config->name = 'use_gptzero';
-                $mod_config->value = $data->use_gptzero;
-                $mod_config->creatoremail = $useremail;
-                $mod_config->gptzero_assignment_id = $response['data']['gptzero_assignment_id'];
-                
-                $DB->insert_record('plagiarism_gptzero_config', $mod_config);
+                $modconfig = new stdClass();
+                $modconfig->cm = $data->coursemodule;
+                $modconfig->name = 'use_gptzero';
+                $modconfig->value = $data->use_gptzero;
+                $modconfig->creatoremail = $useremail;
+                $modconfig->gptzero_assignment_id = $response['data']['gptzero_assignment_id'];
+
+                $DB->insert_record('plagiarism_gptzero_config', $modconfig);
             } else {
                 debugging("GPTZero Assignment Creation Error", DEBUG_DEVELOPER);
             }
         }
     } else {
-        //update existing record
+        // Update existing record.
         $savedrecord->value = $data->use_gptzero;
         $DB->update_record('plagiarism_gptzero_config', $savedrecord);
     }

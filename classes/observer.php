@@ -17,12 +17,17 @@
 /**
  * Event observers used in GPTZero Plagiarism plugin.
  *
+ * @package    plagiarism_gptzero
  * @copyright  2024 GPTZero <team@gptzero.me>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Handles various Moodle events related to plagiarism checking in assignments, forums,
+ * workshops, and other modules.
+ *
+ * @package plagiarism_gptzero
+ */
 class plagiarism_gptzero_observer {
     /**
      * Observer function to handle the assessable_uploaded event in mod_assign.

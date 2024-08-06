@@ -21,33 +21,34 @@
  * @copyright  2024 GPTZero <team@gptzero.me>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'plagiarism/gptzero:enable' => array(
+$capabilities = [
+    'plagiarism/gptzero:enable' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
+        'legacy' => [
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
-    'plagiarism/gptzero:viewreport' => array(
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'plagiarism/gptzero:viewreport' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
-            'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
-    'plagiarism/gptzero:resetfile' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
+        'legacy' => [
             'editingteacher' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
-);
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'plagiarism/gptzero:resetfile' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'legacy' => [
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+];
 

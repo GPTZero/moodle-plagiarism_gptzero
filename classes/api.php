@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace plagiarism_gptzero;
+
 /**
  * Functions to communicate with GPTZero endpoints
  *
@@ -21,27 +23,37 @@
  * @copyright  2024 GPTZero <team@gptzero.me>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace plagiarism_gptzero;
-
 class api {
-    
-    private $api_key;
-    private $api_url = 'https://9cb3-2605-bc0-1208-24-24bc-cc80-d767-4192.ngrok-free.app';
-    
+    /** @var string $apikey API key used for authentication with GPTZero endpoints */
+    private $apikey;
+
+    /** @var string $apiurl URL used for sending requests to GPTZero endpoints */
+    private $apiurl = 'https://9cb3-2605-bc0-1208-24-24bc-cc80-d767-4192.ngrok-free.app';
+
+    /**
+     * Constructs the API client, initializing with API key from the configuration.
+     */
     public function __construct() {
-        $this->api_key = get_config('plagiarism_gptzero', 'gptzero_apikey');
+        $this->apikey = get_config('plagiarism_gptzero', 'gptzero_apikey');
     }
 
+    /**
+     * Submits a file to GPTZero for AI detection.
+     *
+     * @param mixed $file The file to be submitted.
+     * @param array $params Additional parameters for the submission.
+     * @return string The response from the GPTZero API.
+     */
     public function submit_file($file, $params) {
-        $file_content = $file->get_content();
-        $file_name = $file->get_filename();
-        $file_type = $file->get_mimetype();
-    
+        $filecontent = $file->get_content();
+        $filename = $file->get_filename();
+        $filetype = $file->get_mimetype();
+
         $boundary = "----CustomBoundary123456789";
         $payload = "--" . $boundary . "\r\n";
-        $payload .= "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($file_name) . "\"\r\n";
-        $payload .= "Content-Type: " . $file_type . "\r\n\r\n";
-        $payload .= $file_content . "\r\n";
+        $payload .= "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n";
+        $payload .= "Content-Type: " . $filetype . "\r\n\r\n";
+        $payload .= $filecontent . "\r\n";
 
         foreach ($params as $key => $value) {
             $payload .= "--" . $boundary . "\r\n";
@@ -49,11 +61,11 @@ class api {
             $payload .= $value . "\r\n";
         }
         $payload .= "--" . $boundary . "--\r\n";
-    
+
         $curl = curl_init();
-    
+
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->api_url . '/v3/moodle/submit',
+            CURLOPT_URL => $this->apiurl . '/v3/moodle/submit',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
@@ -63,40 +75,47 @@ class api {
             CURLOPT_HTTPHEADER => [
                 "Accept: application/json",
                 "Content-Type: multipart/form-data; boundary=" . $boundary,
-                "x-api-key: {$this->api_key}"
+                "x-api-key: {$this->apikey}",
             ],
         ]);
-    
+
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-    
+
         if ($err) {
             debugging("cURL Error #:" . $err, DEBUG_DEVELOPER);
         } else {
             debugging("Response received: " . $response, DEBUG_DEVELOPER);
         }
-    
+
         return $response;
     }
 
+    /**
+     * Submits text to GPTZero for AI detection.
+     *
+     * @param string $text The text to be submitted.
+     * @param array $params Additional parameters for the submission.
+     * @return string The response from the GPTZero API.
+     */
     public function submit_text($text, $params) {
         $boundary = "----CustomBoundary123456789";
         $payload = "--" . $boundary . "\r\n";
         $payload .= "Content-Disposition: form-data; name=\"text\"\r\n\r\n";
         $payload .= $text . "\r\n";
-    
+
         foreach ($params as $key => $value) {
             $payload .= "--" . $boundary . "\r\n";
             $payload .= "Content-Disposition: form-data; name=\"" . $key . "\"\r\n\r\n";
             $payload .= $value . "\r\n";
         }
         $payload .= "--" . $boundary . "--\r\n";
-    
+
         $curl = curl_init();
-    
+
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->api_url . '/v3/moodle/submit',
+            CURLOPT_URL => $this->apiurl . '/v3/moodle/submit',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 30,
@@ -106,38 +125,43 @@ class api {
             CURLOPT_HTTPHEADER => [
                 "Accept: application/json",
                 "Content-Type: multipart/form-data; boundary=" . $boundary,
-                "x-api-key: {$this->api_key}"
+                "x-api-key: {$this->apikey}",
             ],
         ]);
-    
+
         $response = curl_exec($curl);
         $err = curl_error($curl);
         curl_close($curl);
-    
+
         if ($err) {
             debugging("cURL Error #:" . $err, DEBUG_DEVELOPER);
         } else {
             debugging("Response received: " . $response, DEBUG_DEVELOPER);
         }
-    
-        return $response;
-    }    
 
-    public function create_assignment($userName, $userEmail, $userId) {
-        // Prepare the data for the POST request
+        return $response;
+    }
+
+    /**
+     * Creates an assignment in GPTZero with specified user details.
+     *
+     * @param string $username Username associated with the assignment.
+     * @param string $useremail User's email for contact and identification.
+     * @param string $userid User's ID in the system.
+     * @return string The response from the GPTZero API indicating success or failure.
+     */
+    public function create_assignment($username, $useremail, $userid) {
         $data = json_encode([
-            'userName' => $userName,
-            'userEmail' => $userEmail,
-            'userId' => $userId,
-            'api' => $this->api_key
+            'userName' => $username,
+            'userEmail' => $useremail,
+            'userId' => $userid,
+            'api' => $this->apikey,
         ]);
-    
-        // Initialize cURL session
+
         $curl = curl_init();
-    
-        // Set cURL options
+
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->api_url . "/v3/moodle/deep-linking",
+            CURLOPT_URL => $this->apiurl . "/v3/moodle/deep-linking",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -148,18 +172,15 @@ class api {
             CURLOPT_HTTPHEADER => [
                 "Accept: application/json",
                 "Content-Type: application/json",
-                "x-api-key: {$this->api_key}"
+                "x-api-key: {$this->apikey}",
             ],
         ]);
 
-        // Execute cURL request
         $response = curl_exec($curl);
         $err = curl_error($curl);
-    
-        // Close cURL session
+
         curl_close($curl);
-        
-        // Handle response and errors
+
         if ($err) {
             debugging("cURL Error #:" . $err, DEBUG_DEVELOPER);
         } else {
@@ -168,19 +189,22 @@ class api {
 
         return $response;
     }
-    
-    public function has_gptzero_account($userEmail) {
-        // Prepare the data for the POST request
+
+    /**
+     * Checks if a user has an account on GPTZero.
+     *
+     * @param string $useremail The email address to check for an existing account.
+     * @return string The response from the GPTZero API indicating account existence.
+     */
+    public function has_gptzero_account($useremail) {
         $data = json_encode([
-            'userEmail' => $userEmail,
+            'userEmail' => $useremail,
         ]);
-    
-        // Initialize cURL session
+
         $curl = curl_init();
-    
-        // Set cURL options
+
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->api_url . "/v3/moodle/launch",
+            CURLOPT_URL => $this->apiurl . "/v3/moodle/launch",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -191,18 +215,15 @@ class api {
             CURLOPT_HTTPHEADER => [
                 "Accept: application/json",
                 "Content-Type: application/json",
-                "x-api-key: {$this->api_key}"
+                "x-api-key: {$this->apikey}",
             ],
         ]);
 
-        // Execute cURL request
         $response = curl_exec($curl);
         $err = curl_error($curl);
-    
-        // Close cURL session
+
         curl_close($curl);
-        
-        // Handle response and errors
+
         if ($err) {
             debugging("cURL Error #:" . $err, DEBUG_DEVELOPER);
         } else {
@@ -212,4 +233,3 @@ class api {
         return $response;
     }
 }
-?>
