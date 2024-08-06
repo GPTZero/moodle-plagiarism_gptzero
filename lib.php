@@ -466,12 +466,16 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
      * Handles the logic to display notifications related to GPTZero when the grading page is accessed.
      */
     public function handle_grading_page_view() {
-        static $notificationdisplayed = false;
+        static $notificationdisplayed;
+        static $accountcheckcache = [];
 
         if ($notificationdisplayed) {
             // Skip the function if the notification has already been handled during this request.
+            debugging('notification alr displayed', DEBUG_DEVELOPER);
             return;
         }
+
+        $notificationdisplayed = false;
 
         global $USER, $DB, $COURSE;
 
@@ -490,17 +494,28 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
             return;
         }
 
-        $api = new \plagiarism_gptzero\api();
-        $response = $api->has_gptzero_account($useremail);
-        $response = json_decode($response, true);
+        if (isset($accountcheckcache[$useremail])) {
+            // If we've already checked during this request, use the cached result.
+            $hasaccount = $accountcheckcache[$useremail];
+        } else {
+            $api = new \plagiarism_gptzero\api();
+            $response = $api->has_gptzero_account($useremail);
+            $response = json_decode($response, true);
 
-        if (!empty($response['success']) && !$response['hasAccount']) {
-            $message = "It looks like you have not yet created a GPTZero account.
-                        An account is required to see in-depth results in the GPTZero dashboard.
-                        An invitation was sent from api@gptzero.me to {$useremail} during assignment creation.";
-            \core\notification::add($message, \core\notification::INFO);
-            debugging('User does not have a GPTZero account. Check your email.', DEBUG_DEVELOPER);
-            $notificationdisplayed = true;
+            $hasaccount = !empty($response['success']) && !$response['hasAccount'];
+            $accountcheckcache[$useremail] = $hasaccount;
+        }
+
+        // Display notification only if the user does not have an account.
+        if ($hasaccount) {
+            if (!empty($response['success']) && !$response['hasAccount']) {
+                $message = "It looks like you have not yet created a GPTZero account.
+                            An account is required to see in-depth results in the GPTZero dashboard.
+                            An invitation was sent from api@gptzero.me to {$useremail} during assignment creation.";
+                \core\notification::add($message, \core\notification::INFO);
+                debugging('User does not have a GPTZero account. Check your email.', DEBUG_DEVELOPER);
+                $notificationdisplayed = true;
+            }
         }
     }
 }
