@@ -51,14 +51,14 @@ if (($data = $mform->get_data()) && confirm_sesskey()) {
     }
 
     foreach ($data as $field => $value) {
-        if (strpos($field, 'gptzero') === 0  && $field !== 'gptzero_enabled') {
+        if (strpos($field, 'gptzero') === 0) {
             set_config($field, $value, 'plagiarism_gptzero');
         }
     }
     cache_helper::invalidate_by_definition('core', 'config', [], 'plagiarism_gptzero');
     echo $OUTPUT->notification(get_string('savedconfigsuccess', 'plagiarism_gptzero'), 'notifysuccess');
 }
-$plagiarismsettings = array_merge([get_config('plagiarism')], [get_config('plagiarism_gptzero')]);
+$plagiarismsettings = array_merge((array)get_config('plagiarism'), (array)get_config('plagiarism_gptzero'));
 $mform->set_data($plagiarismsettings);
 
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
