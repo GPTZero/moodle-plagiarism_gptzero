@@ -509,9 +509,7 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
         // Display notification only if the user does not have an account.
         if ($hasaccount) {
             if (!empty($response['success']) && !$response['hasAccount']) {
-                $message = "It looks like you have not yet created a GPTZero account.
-                            An account is required to see in-depth results in the GPTZero dashboard.
-                            An invitation was sent from api@gptzero.me to {$useremail} during assignment creation.";
+                $message = get_string('notification_message', 'plagiarism_gptzero', $useremail);
                 \core\notification::add($message, \core\notification::INFO);
                 debugging('User does not have a GPTZero account. Check your email.', DEBUG_DEVELOPER);
                 $notificationdisplayed = true;

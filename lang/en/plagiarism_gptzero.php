@@ -44,3 +44,4 @@ $string['gptzerocoursesettings'] = 'GPTZero Settings';
 $string['apikey'] = 'GPTZero API Key';
 $string['apikeyrequired'] = 'Key of GPTZero API is required';
 $string['apikeyhelp'] = 'If you do not have a API key, please <a target="_blank" href="https://gptzero.me/sales">click here to sign up for your own.</a>';
+$string['notification_message'] = 'It looks like you have not yet created a GPTZero account. An account is required to see in-depth results in the GPTZero dashboard. An invitation was sent from api@gptzero.me to {$a} during assignment creation.';
