@@ -213,8 +213,8 @@ class plagiarism_plugin_gptzero extends plagiarism_plugin {
      * @param $file file object
      * @return array containing at least:
      *   - 'analyzed' - whether the file has been successfully analyzed
-     *   - 'score' - similarity score - ('' if not known)
-     *   - 'reporturl' - url of gptzero report - '' if unavailable
+     *   - 'predicted_class' - GPTZero AI Detection predicted class of associated document
+     *   - 'class_probability' - GPTZero AI Detection class probability of associated document
      */
     public function get_file_results($cmid, $userid, $file) {
         global $DB;

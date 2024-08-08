@@ -79,14 +79,4 @@ class plagiarism_gptzero_observer {
         require_once($CFG->dirroot . '/plagiarism/gptzero/lib.php');
         gptzero_handle_event($event->get_data());
     }
-    /**
-     * Observer function to handle the grading_table_viewed event in mod_assign.
-     * @param \mod_assign\event\grading_table_viewed $event
-     */
-    public static function grading_page_accessed(
-        \mod_assign\event\grading_table_viewed $event) {
-        global $CFG;
-        require_once($CFG->dirroot . '/plagiarism/gptzero/lib.php');
-        gptzero_handle_event($event->get_data());
-    }
 }

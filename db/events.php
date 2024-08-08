@@ -45,8 +45,4 @@ $observers = [
         'eventname' => '\mod_assign\event\assessable_submitted',
         'callback' => 'plagiarism_gptzero_observer::assignsubmission_submitted',
     ],
-    [
-        'eventname' => '\mod_assign\event\grading_table_viewed',
-        'callback' => 'plagiarism_gptzero_observer::grading_page_accessed',
-    ],
 ];
