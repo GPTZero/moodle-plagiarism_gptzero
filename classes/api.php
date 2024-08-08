@@ -155,7 +155,6 @@ class api {
             'userName' => $username,
             'userEmail' => $useremail,
             'userId' => $userid,
-            'api' => $this->apikey,
         ]);
 
         $curl = curl_init();
