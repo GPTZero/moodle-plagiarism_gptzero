@@ -43,4 +43,4 @@ $string['plagiarised'] = 'This submission contains plagiarised content';
 $string['gptzerocoursesettings'] = 'GPTZero Settings';
 $string['apikey'] = 'GPTZero API Key';
 $string['apikeyrequired'] = 'Key of GPTZero API is required';
-$string['apikeyhelp'] = 'If you do not have a API key, please <a target="_blank" href="https://gptzero.stoplight.io/docs/gptzero-api/5bf295g49gwxp-gpt-zero-api">click here to sign up for your own.</a>';
+$string['apikeyhelp'] = 'If you do not have a API key, please <a target="_blank" href="https://gptzero.me/sales">click here to sign up for your own.</a>';
