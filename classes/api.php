@@ -28,7 +28,7 @@ class api {
     private $apikey;
 
     /** @var string $apiurl URL used for sending requests to GPTZero endpoints */
-    private $apiurl = 'https://9cb3-2605-bc0-1208-24-24bc-cc80-d767-4192.ngrok-free.app';
+    private $apiurl = 'https://api.gptzero.me';
 
     /**
      * Constructs the API client, initializing with API key from the configuration.
